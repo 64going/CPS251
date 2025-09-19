@@ -1,0 +1,27 @@
+You:
+whats the problum? Argument type mismatch: actual type is 'Unit', but 'BorderStroke' was expected.
+Function invocation 'width(...)' expected.
+AI:
+It seems like there might be an issue with the usage of the width function. The error message "Argument type mismatch: actual type is 'Unit', but 'BorderStroke' was expected" indicates that the function is receiving a Unit type instead of the expected BorderStroke type.
+
+To resolve this issue, you need to ensure that the width function is being used correctly with the appropriate parameters.
+
+If you can provide the specific code snippet where this error is occurring, I can help you identify and correct the problem.
+
+You:
+.border(if(isSelected) {this.width = 3.dp, this.color = MaterialTheme.colorScheme.primary})
+AI:
+The error in your code is due to the incorrect usage of the .border function. The .border function expects a BorderStroke object as a parameter, but you are passing a lambda expression inside the if statement.
+
+To fix this issue, you can create a BorderStroke object outside of the .border function and then conditionally apply it based on the isSelected flag. Here's how you can correct the code:
+
+.border(
+    if (isSelected) {
+        BorderStroke(3.dp, MaterialTheme.colorScheme.primary)
+    } else {
+        BorderStroke(0.dp, Color.Transparent) // No border when not selected
+    }
+)
+This code creates a BorderStroke object with the specified width and color when isSelected is true. When isSelected is false, it sets the border width to 0 and uses a transparent color to remove the border.
+
+By providing a BorderStroke object directly to the .border function, you ensure that the correct type is passed as expected.
