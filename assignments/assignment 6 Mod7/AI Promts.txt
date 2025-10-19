@@ -1,0 +1,49 @@
+outlinedtextfield jetpack compose
+
+OutlinedTextField(
+                leadingIcon = Icon(Icons.Default.Person, contentDescription = null),
+                isError = nameError,
+                supportingText = "Please enter your name",
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                )
+            ){} 
+whats wrong with this?
+
+show me a example for leading icon and supporting text
+
+show me a outlinedtextfield in a column
+
+explain why leadingicon and supportingtext need to be lambas?  
+
+what does contentDescription do for leading icon
+
+explain trailingIcon
+
+example TextButton
+
+show me visualTransformation for buttons
+
+Card with elevation
+
+explain elevation 
+
+explain CardDefaults.cardElevation()
+
+and in kotlin
+
+whats the symbols for and in kotlin 
+
+font size 
+
+explain how to use NavHost
+
+explain composable("home") { HomeScreen( onNavigateToDetails = { navController.navigate("details") } ) }
+
+navigation with arguments
+
+explain onNavigate = { userId -> navController.navigate("profile/$userId") }
+
+explain NavHost(navController = navController, startDestination = "home") { composable("home") { HomeScreen(onNavigate = { userId -> navController.navigate("profile/$userId") }) } composable( route = "profile/{userId}", arguments = listOf(navArgument("userId") { type = NavType.StringType }) ) { backStackEntry -> val userId = backStackEntry.arguments?.getString("userId") ProfileScreen(userId = userId) }
+
+explain navController.navigate
