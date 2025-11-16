@@ -1,0 +1,355 @@
+jetpack compoose starborder
+
+If you want to use **StarBorder** (the outlined star icon) in **Jetpack Compose**, you can use the Material Icons library.
+
+### ✅ Basic Usage (Material Icons)
+
+```kotlin
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.Icon
+
+Icon(
+    imageVector = Icons.Filled.StarBorder,
+    contentDescription = "Star border"
+)
+```
+
+### ⭐ Using in a Row of Rating Stars
+
+```kotlin
+Row {
+    repeat(5) {
+        Icon(
+            imageVector = Icons.Filled.StarBorder,
+            tint = Color.Yellow,
+            contentDescription = "Rating star"
+        )
+    }
+}
+```
+
+### ℹ️ Make sure you have Material Icons enabled
+
+In your `build.gradle` (module):
+
+```gradle
+implementation "androidx.compose.material:material-icons-extended:<version>"
+```
+
+If you need a **filled star**, use:
+
+```kotlin
+Icons.Filled.Star
+```
+
+Or half-filled:
+
+```kotlin
+Icons.Filled.StarHalf
+```
+
+---
+
+If you want a **custom star border**, animation, or a toggle between filled and border, tell me and I can generate that code too!
+
+why does it error?  OutlinedTextField( 
+                    value = title,
+                    onValueChange = { title = it;isTitleEmpty = title.isEmpty() },
+                    label = { Text("Title") },
+                    isError = isTitleEmpty,
+                    supportingText = {if(isTitleEmpty){Text("Title cannot be empty")} },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    focusRequester = titleFocus
+                )
+
+Your code is **almost correct**, but the error comes from this line:
+
+```kotlin
+supportingText = { if (isTitleEmpty) { Text("Title cannot be empty") } }
+```
+
+In **Material 3** (`OutlinedTextField`), the lambda passed to `supportingText` must **always return a composable**, not just conditionally.
+When the `if` statement doesn’t run, the lambda returns **Unit**, which is **not a composable**, so Compose throws an error.
+
+---
+
+## ✅ Fix: Provide an `else` with an empty composable
+
+```kotlin
+supportingText = {
+    if (isTitleEmpty) {
+        Text("Title cannot be empty")
+    } else {
+        Spacer(Modifier.height(0.dp))   // or nothing composable
+    }
+}
+```
+
+A cleaner empty composable:
+
+```kotlin
+supportingText = {
+    if (isTitleEmpty) Text("Title cannot be empty")
+}
+```
+
+➡️ This version works only if your Compose version allows conditional returning inside the lambda.
+If yours does **not**, use a safe empty composable:
+
+```kotlin
+supportingText = {
+    if (isTitleEmpty) {
+        Text("Title cannot be empty")
+    } else {
+        Box {}
+    }
+}
+```
+
+---
+
+## Another possible error: wrong `onValueChange` block
+
+You have:
+
+```kotlin
+onValueChange = { title = it; isTitleEmpty = title.isEmpty() }
+```
+
+This is valid Kotlin, but some formatting tools cause warnings.
+A safer form is:
+
+```kotlin
+onValueChange = {
+    title = it
+    isTitleEmpty = it.isEmpty()
+}
+```
+
+---
+
+## Full corrected version
+
+```kotlin
+OutlinedTextField(
+    value = title,
+    onValueChange = {
+        title = it
+        isTitleEmpty = it.isEmpty()
+    },
+    label = { Text("Title") },
+    isError = isTitleEmpty,
+    supportingText = {
+        if (isTitleEmpty) {
+            Text("Title cannot be empty")
+        } else {
+            Spacer(Modifier.height(0.dp))
+        }
+    },
+    colors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+    ),
+    modifier = Modifier
+        .padding(16.dp)
+        .fillMaxWidth(),
+    focusRequester = titleFocus
+)
+```
+
+---
+
+If you want, paste the exact compiler error message and I can diagnose it precisely.
+
+None of the following candidates is applicable:
+fun OutlinedTextField(value: TextFieldValue, onValueChange: (TextFieldValue) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., readOnly: Boolean = ..., textStyle: TextStyle = ..., label: @Composable() ComposableFunction0<Unit>? = ..., placeholder: @Composable() ComposableFunction0<Unit>? = ..., leadingIcon: @Composable() ComposableFunction0<Unit>? = ..., trailingIcon: @Composable() ComposableFunction0<Unit>? = ..., prefix: @Composable() ComposableFunction0<Unit>? = ..., suffix: @Composable() ComposableFunction0<Unit>? = ..., supportingText: @Composable() ComposableFunction0<Unit>? = ..., isError: Boolean = ..., visualTransformation: VisualTransformation = ..., keyboardOptions: KeyboardOptions = ..., keyboardActions: KeyboardActions = ..., singleLine: Boolean = ..., maxLines: Int = ..., minLines: Int = ..., interactionSource: MutableInteractionSource? = ..., shape: Shape = ..., colors: TextFieldColors = ...): Unit
+fun OutlinedTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier = ..., enabled: Boolean = ..., readOnly: Boolean = ..., textStyle: TextStyle = ..., label: @Composable() ComposableFunction0<Unit>? = ..., placeholder: @Composable() ComposableFunction0<Unit>? = ..., leadingIcon: @Composable() ComposableFunction0<Unit>? = ..., trailingIcon: @Composable() ComposableFunction0<Unit>? = ..., prefix: @Composable() ComposableFunction0<Unit>? = ..., suffix: @Composable() ComposableFunction0<Unit>? = ..., supportingText: @Composable() ComposableFunction0<Unit>? = ..., isError: Boolean = ..., visualTransformation: VisualTransformation = ..., keyboardOptions: KeyboardOptions = ..., keyboardActions: KeyboardActions = ..., singleLine: Boolean = ..., maxLines: Int = ..., minLines: Int = ..., interactionSource: MutableInteractionSource? = ..., shape: Shape = ..., colors: TextFieldColors = ...): Unit
+
+This error means **the compiler cannot find an `OutlinedTextField` overload that matches the parameters you provided**.
+
+The reason is almost always **you imported the Material 2 OutlinedTextField**, but you are trying to use **Material 3 parameters** (such as `supportingText` and `OutlinedTextFieldDefaults.colors()`), which do NOT exist in Material 2.
+
+---
+
+# ✅ **Root Cause**
+
+You probably have this import:
+
+```kotlin
+import androidx.compose.material.OutlinedTextField   // ❌ Material 2
+```
+
+But `supportingText` and `OutlinedTextFieldDefaults.colors()` belong to:
+
+```kotlin
+import androidx.compose.material3.OutlinedTextField   // ✅ Material 3
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+```
+
+Material 2 `OutlinedTextField` → does **not** have:
+
+* `supportingText`
+* `OutlinedTextFieldDefaults.colors()`
+
+So the compiler cannot match your parameters and prints the giant overload error.
+
+---
+
+# ✅ **Fix: Use Material 3 imports**
+
+Make sure your imports look like this:
+
+```kotlin
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+```
+
+And remove this if it's present:
+
+```kotlin
+import androidx.compose.material.*   // ❌
+```
+
+---
+
+# ✅ Correct Material 3 OutlinedTextField
+
+```kotlin
+OutlinedTextField(
+    value = title,
+    onValueChange = {
+        title = it
+        isTitleEmpty = it.isEmpty()
+    },
+    label = { Text("Title") },
+    isError = isTitleEmpty,
+    supportingText = {
+        if (isTitleEmpty) Text("Title cannot be empty")
+    },
+    colors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+    ),
+    modifier = Modifier
+        .padding(16.dp)
+        .fillMaxWidth(),
+    focusRequester = titleFocus
+)
+```
+
+---
+
+# If you still get errors
+
+Paste the imports section of your file and I’ll tell you exactly which one is wrong.
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.*
+
+Your imports look **correct**, so the problem is NOT from accidentally importing Material 2.
+
+That means the real issue is this parameter:
+
+```kotlin
+focusRequester = titleFocus
+```
+
+### ❌ Why it breaks
+
+`focusRequester` **is NOT a parameter** of `OutlinedTextField` in **Material 3**.
+
+Because you pass an unknown parameter, the compiler says:
+
+> "None of the following candidates is applicable"
+
+Because none of the overloads match your parameter list.
+
+---
+
+# ✅ **Fix**
+
+Remove the parameter:
+
+```kotlin
+// focusRequester = titleFocus   ← remove this
+```
+
+Then apply the FocusRequester via a **modifier** instead:
+
+```kotlin
+modifier = Modifier
+    .padding(16.dp)
+    .fillMaxWidth()
+    .focusRequester(titleFocus)
+```
+
+---
+
+# ✅ Corrected code block
+
+```kotlin
+OutlinedTextField(
+    value = title,
+    onValueChange = {
+        title = it
+        isTitleEmpty = it.isEmpty()
+    },
+    label = { Text("Title") },
+    isError = isTitleEmpty,
+    supportingText = {
+        if (isTitleEmpty) Text("Title cannot be empty")
+    },
+    colors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant
+    ),
+    modifier = Modifier
+        .padding(16.dp)
+        .fillMaxWidth()
+        .focusRequester(titleFocus)  // ← correct place
+)
+```
+
+---
+
+# 👍 Summary
+
+| Problem                       | Fix                                                |
+| ----------------------------- | -------------------------------------------------- |
+| `focusRequester = titleFocus` | ❌ Not a parameter of Material3 `OutlinedTextField` |
+| Use inside modifier           | ✔ `Modifier.focusRequester(titleFocus)`            |
+
+---
+
+If you want, I can also show how to automatically request focus when the composable appears.
